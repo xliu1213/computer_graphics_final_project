@@ -203,7 +203,8 @@ struct Building {
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		// Define scale of the building geometry
 		this->position = position;
-		this->scale = scale;
+		// Assuming the original box is 1x1x1, scale to desired dimensions
+		this->scale = glm::vec3(16, 80, 16); // width = 16, height = 80, depth = 16
 
 		// Create a vertex array object
 		glGenVertexArrays(1, &vertexArrayID);
@@ -221,6 +222,7 @@ struct Building {
 		for (int i = 0; i < 72; ++i) color_buffer_data[i] = 1.0f;
 		glBufferData(GL_ARRAY_BUFFER, sizeof(color_buffer_data), color_buffer_data, GL_STATIC_DRAW);
 
+		for (int i = 0; i < 24; ++i) uv_buffer_data[2 * i + 1] *= 5;
 		// Create a vertex buffer object to store the UV data 
 		glGenBuffers(1, &uvBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);

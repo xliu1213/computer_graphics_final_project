@@ -17,9 +17,9 @@
 413	723	7523576539658752	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/win32_window.c.obj	4c1bb116e11f0e13
 7	822	7523576540575526	CMakeFiles/lab2_building.dir/lab2/render/shader.cpp.obj	ec1fb3bc994a0ed0
 723	1028	7523576542478122	glfw3.dll	48661855dc5e5c33
-10	664	7523624423211063	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	69a8ab6df4d63012
-664	870	7523624424851832	lab2_building.exe	f6c4935271e35712
-50	1142	7523732790801486	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	69a8ab6df4d63012
-1144	1451	7523732793174974	lab2_building.exe	f6c4935271e35712
 5	998	7523737331435849	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	69a8ab6df4d63012
 999	1233	7523737333410326	lab2_building.exe	f6c4935271e35712
+21	985	7523765194904233	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	69a8ab6df4d63012
+985	1197	7523765196634451	lab2_building.exe	f6c4935271e35712
+21	779	7523767487665026	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	69a8ab6df4d63012
+779	1083	7523767490176108	lab2_building.exe	f6c4935271e35712
