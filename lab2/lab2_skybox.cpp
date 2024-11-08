@@ -27,7 +27,7 @@ static glm::vec3 up(0, 1, 0);
 // View control 
 static float viewAzimuth = 0.f;
 static float viewPolar = 0.f;
-static float viewDistance = 300.0f;
+static float viewDistance = 1.0f;
 
 static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	int w, h, channels;
@@ -36,18 +36,19 @@ static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	// To tile textures on a box, we set wrapping to repeat
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	// Set texture wrapping and filtering parameters to prevent seams
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	// Load the texture image data
 	if (img) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
-		std::cout << "Failed to load texture " << texture_file_path << std::endl;
+		std::cerr << "Failed to load texture " << texture_file_path << std::endl;
 	}
 	stbi_image_free(img);
 
@@ -58,42 +59,42 @@ struct Building {
 	glm::vec3 position;		// Position of the box 
 	glm::vec3 scale;		// Size of the box in each axis
 
-	GLfloat vertex_buffer_data[72] = {	// Vertex definition for a canonical box
+	GLfloat vertex_buffer_data[72] = {
 		// Front face
 		-1.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f,
+		 1.0f,  1.0f, 1.0f,
+		-1.0f,  1.0f, 1.0f,
 
-		// Back face 
-		1.0f, -1.0f, -1.0f,
+		// Back face
+		 1.0f, -1.0f, -1.0f,
 		-1.0f, -1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
 
-		// Left face
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, -1.0f,
+		 // Left face
+		 -1.0f, -1.0f, -1.0f,
+		 -1.0f, -1.0f,  1.0f,
+		 -1.0f,  1.0f,  1.0f,
+		 -1.0f,  1.0f, -1.0f,
 
-		// Right face 
-		1.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, 1.0f, -1.0f,
-		1.0f, 1.0f, 1.0f,
+		 // Right face
+		  1.0f, -1.0f,  1.0f,
+		  1.0f, -1.0f, -1.0f,
+		  1.0f,  1.0f, -1.0f,
+		  1.0f,  1.0f,  1.0f,
 
-		// Top face
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, -1.0f,
-		-1.0f, 1.0f, -1.0f,
+		  // Top face
+		  -1.0f,  1.0f,  1.0f,
+		   1.0f,  1.0f,  1.0f,
+		   1.0f,  1.0f, -1.0f,
+		  -1.0f,  1.0f, -1.0f,
 
-		// Bottom face
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, 1.0f,
-		-1.0f, -1.0f, 1.0f,
+		  // Bottom face
+		  -1.0f, -1.0f, -1.0f,
+		   1.0f, -1.0f, -1.0f,
+		   1.0f, -1.0f,  1.0f,
+		  -1.0f, -1.0f,  1.0f,
 	};
 
 	GLfloat color_buffer_data[72] = {
@@ -155,40 +156,41 @@ struct Building {
 	};
 
 	GLfloat uv_buffer_data[48] = {
-		// Front 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
-		// Back 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
+		// +X Face (pos X)
+		0.25f, 0.666f,  // Top-right
+		0.0f,  0.666f,  // Top-left
+		0.0f,  0.333f,  // Bottom-left
+		0.25f, 0.333f,  // Bottom-right
 
-		// Left 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
+		// -X Face (neg X)
+		0.75f, 0.666f,  // Top-right
+		0.5f,  0.666f,  // Top-left
+		0.5f,  0.333f,  // Bottom-left
+		0.75f, 0.333f,  // Bottom-right
 
-		// Right 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
+		// +Z Face (pos Z)
+		0.5f,  0.666f,  // Top-right
+		0.25f, 0.666f,  // Top-left
+		0.25f, 0.333f,  // Bottom-left
+		0.5f,  0.333f,  // Bottom-right
 
-		// Top - we do not want texture the top 
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
+		// -Z Face (neg Z)
+		1.0f,  0.666f,  // Top-right
+		0.75f, 0.666f,  // Top-left
+		0.75f, 0.333f,  // Bottom-left
+		1.0f,  0.333f,  // Bottom-right
 
-		// Bottom - we do not want texture the bottom 
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
+		// -Y Face (neg Y)
+		0.25f, 0.333f,  // Top-left
+		0.25f, 0.0f,    // Bottom-left
+		0.5f,  0.0f,    // Bottom-right
+		0.5f,  0.333f,  // Top-right
+
+		// +Y Face (pos Y)
+		0.5f,  0.666f,  // Bottom-right
+		0.5f,  1.0f,    // Top-right
+		0.25f, 1.0f,    // Top-left
+		0.25f, 0.666f,  // Bottom-left
 	};
 
 	// OpenGL buffers
@@ -227,7 +229,7 @@ struct Building {
 		glGenBuffers(1, &uvBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
-		textureID = LoadTextureTileBox("../../../lab2/facade4.jpg");
+		textureID = LoadTextureTileBox("../../../lab2/studio_garden.png");
 
 		// Create an index buffer object to store the index data that defines triangle faces
 		glGenBuffers(1, &indexBufferID);
@@ -340,7 +342,7 @@ int main(void)
 	glClearColor(0.68f, 0.85f, 0.90f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	Building b;
 	b.initialize(glm::vec3(0, 0, 0), glm::vec3(30, 30, 30));
