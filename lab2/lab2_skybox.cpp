@@ -208,20 +208,6 @@ struct Building {
 		this->position = position;
 		this->scale = scale;
 
-		// List of texture file paths
-		const std::string textureFiles[6] = {
-			"../../../lab2/facade0.jpg",
-			"../../../lab2/facade1.jpg",
-			"../../../lab2/facade2.jpg",
-			"../../../lab2/facade3.jpg",
-			"../../../lab2/facade4.jpg",
-			"../../../lab2/facade5.jpg"
-		};
-
-		// Randomly select a texture from the list
-		int textureIndex = rand() % 6;
-		textureID = LoadTextureTileBox(textureFiles[textureIndex].c_str());
-
 		// Create a vertex array object
 		glGenVertexArrays(1, &vertexArrayID);
 		glBindVertexArray(vertexArrayID);
@@ -237,12 +223,11 @@ struct Building {
 		for (int i = 0; i < 72; ++i) color_buffer_data[i] = 1.0f;
 		glBufferData(GL_ARRAY_BUFFER, sizeof(color_buffer_data), color_buffer_data, GL_STATIC_DRAW);
 
-		for (int i = 0; i < 24; ++i) uv_buffer_data[2 * i + 1] *= 5;
-
 		// Create a vertex buffer object to store the UV data 
 		glGenBuffers(1, &uvBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
+		textureID = LoadTextureTileBox("../../../lab2/facade4.jpg");
 
 		// Create an index buffer object to store the index data that defines triangle faces
 		glGenBuffers(1, &indexBufferID);
@@ -275,9 +260,8 @@ struct Building {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
 		// Model transform
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, position); // Apply translation
-		modelMatrix = glm::scale(modelMatrix, scale);        // Apply scaling
+		glm::mat4 modelMatrix = glm::mat4();
+		modelMatrix = glm::scale(modelMatrix, scale);
 
 		// Set model-view-projection matrix
 		glm::mat4 mvp = cameraMatrix * modelMatrix;
@@ -316,13 +300,8 @@ struct Building {
 	}
 };
 
-std::vector<Building> buildings;
-
 int main(void)
 {
-	// Seed the random number generator with the current time
-	srand(static_cast<unsigned>(time(0)));
-
 	// Initialise GLFW
 	if (!glfwInit())
 	{
@@ -363,22 +342,8 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	// Generate a centered block of buildings
-	for (int i = 0; i < 5; ++i) {
-		for (int j = 0; j < 5; ++j) {
-			Building b;
-
-			// Center the grid by offsetting positions
-			glm::vec3 position(i * 40.0f - 80.0f, 0.0f, j * 40.0f - 80.0f);
-
-			// Randomize height for variety, for example, between 50 and 120 units
-			float randomHeight = 50.0f + static_cast<float>(rand() % 71); // Random height between 50 and 120
-			glm::vec3 scale(16.0f, randomHeight, 16.0f);
-
-			b.initialize(position, scale);
-			buildings.push_back(b);
-		}
-	}
+	Building b;
+	b.initialize(glm::vec3(0, 0, 0), glm::vec3(30, 30, 30));
 
 	// Camera setup
 	eye_center.y = viewDistance * cos(viewPolar);
@@ -398,10 +363,7 @@ int main(void)
 		viewMatrix = glm::lookAt(eye_center, lookat, up);
 		glm::mat4 vp = projectionMatrix * viewMatrix;
 
-		// Render each building in the vector
-		for (auto& building : buildings) {
-			building.render(vp);
-		}
+		b.render(vp);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
@@ -410,10 +372,7 @@ int main(void)
 	} // Check if the ESC key was pressed or the window was closed
 	while (!glfwWindowShouldClose(window));
 
-	// Clean up each building in the vector
-	for (auto& building : buildings) {
-		building.cleanup();
-	}
+	b.cleanup();
 
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
