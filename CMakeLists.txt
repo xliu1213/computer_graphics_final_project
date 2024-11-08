@@ -25,3 +25,14 @@ target_link_libraries(lab2_building
 	glfw
 	glad
 )
+
+# Add the lab2_skybox executable
+add_executable(lab2_skybox
+    lab2/lab2_skybox.cpp
+    lab2/render/shader.cpp
+)
+target_link_libraries(lab2_skybox
+    ${OPENGL_LIBRARY}
+    glfw
+    glad
+)

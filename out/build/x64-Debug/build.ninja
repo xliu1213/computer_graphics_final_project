@@ -85,6 +85,51 @@ build lab2_building.exe: CXX_EXECUTABLE_LINKER__lab2_building_Debug CMakeFiles\l
   TARGET_IMPLIB = lab2_building.lib
   TARGET_PDB = lab2_building.pdb
 
+# =============================================================================
+# Object build statements for EXECUTABLE target lab2_skybox
+
+
+#############################################
+# Order-only phony target for lab2_skybox
+
+build cmake_object_order_depends_target_lab2_skybox: phony || cmake_object_order_depends_target_glad cmake_object_order_depends_target_glfw
+
+build CMakeFiles\lab2_skybox.dir\lab2\lab2_skybox.cpp.obj: CXX_COMPILER__lab2_skybox_unscanned_Debug C$:\Users\xiyua\Desktop\lab2\lab2\lab2_skybox.cpp || cmake_object_order_depends_target_lab2_skybox
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
+  INCLUDES = -IC:\Users\xiyua\Desktop\lab2\external\glfw-3.1.2\include -IC:\Users\xiyua\Desktop\lab2\external\glm-0.9.7.1 -IC:\Users\xiyua\Desktop\lab2\external\glad-opengl-3.3\include -IC:\Users\xiyua\Desktop\lab2\external -IC:\Users\xiyua\Desktop\lab2\lab2 -IC:\Users\xiyua\Desktop\lab2\external\glad-3.3\include
+  OBJECT_DIR = CMakeFiles\lab2_skybox.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab2_skybox.dir\lab2
+  TARGET_COMPILE_PDB = CMakeFiles\lab2_skybox.dir\
+  TARGET_PDB = lab2_skybox.pdb
+
+build CMakeFiles\lab2_skybox.dir\lab2\render\shader.cpp.obj: CXX_COMPILER__lab2_skybox_unscanned_Debug C$:\Users\xiyua\Desktop\lab2\lab2\render\shader.cpp || cmake_object_order_depends_target_lab2_skybox
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
+  INCLUDES = -IC:\Users\xiyua\Desktop\lab2\external\glfw-3.1.2\include -IC:\Users\xiyua\Desktop\lab2\external\glm-0.9.7.1 -IC:\Users\xiyua\Desktop\lab2\external\glad-opengl-3.3\include -IC:\Users\xiyua\Desktop\lab2\external -IC:\Users\xiyua\Desktop\lab2\lab2 -IC:\Users\xiyua\Desktop\lab2\external\glad-3.3\include
+  OBJECT_DIR = CMakeFiles\lab2_skybox.dir
+  OBJECT_FILE_DIR = CMakeFiles\lab2_skybox.dir\lab2\render
+  TARGET_COMPILE_PDB = CMakeFiles\lab2_skybox.dir\
+  TARGET_PDB = lab2_skybox.pdb
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target lab2_skybox
+
+
+#############################################
+# Link the executable lab2_skybox.exe
+
+build lab2_skybox.exe: CXX_EXECUTABLE_LINKER__lab2_skybox_Debug CMakeFiles\lab2_skybox.dir\lab2\lab2_skybox.cpp.obj CMakeFiles\lab2_skybox.dir\lab2\render\shader.cpp.obj | glfw3dll.lib glad.lib || glad.dll glfw3.dll
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
+  LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
+  LINK_LIBRARIES = opengl32.lib  glu32.lib  glfw3dll.lib  glad.lib  opengl32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+  OBJECT_DIR = CMakeFiles\lab2_skybox.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_COMPILE_PDB = CMakeFiles\lab2_skybox.dir\
+  TARGET_FILE = lab2_skybox.exe
+  TARGET_IMPLIB = lab2_skybox.lib
+  TARGET_PDB = lab2_skybox.pdb
+
 
 #############################################
 # Utility command for edit_cache
@@ -406,6 +451,8 @@ build glfw: phony glfw3.dll
 
 build lab2_building: phony lab2_building.exe
 
+build lab2_skybox: phony lab2_skybox.exe
+
 # =============================================================================
 # Folder targets.
 
@@ -414,7 +461,7 @@ build lab2_building: phony lab2_building.exe
 #############################################
 # Folder: C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug
 
-build all: phony lab2_building.exe external\all
+build all: phony lab2_building.exe lab2_skybox.exe external\all
 
 # =============================================================================
 

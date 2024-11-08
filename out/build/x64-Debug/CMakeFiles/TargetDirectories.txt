@@ -1,4 +1,5 @@
 C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/CMakeFiles/lab2_building.dir
+C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/CMakeFiles/lab2_skybox.dir
 C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/CMakeFiles/edit_cache.dir
 C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
 C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/external/CMakeFiles/edit_cache.dir

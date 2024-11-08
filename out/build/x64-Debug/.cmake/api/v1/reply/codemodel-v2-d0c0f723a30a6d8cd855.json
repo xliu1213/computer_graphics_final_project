@@ -19,7 +19,8 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						2
+						2,
+						3
 					]
 				},
 				{
@@ -101,7 +102,8 @@
 					"name" : "lab2",
 					"targetIndexes" : 
 					[
-						2
+						2,
+						3
 					]
 				},
 				{
@@ -151,6 +153,13 @@
 					"id" : "lab2_building::@6890427a1f51a3e7e1df",
 					"jsonFile" : "target-lab2_building-Debug-ab4d088b43fc3b86da2d.json",
 					"name" : "lab2_building",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "lab2_skybox::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-lab2_skybox-Debug-2b61407d7328d145d097.json",
+					"name" : "lab2_skybox",
 					"projectIndex" : 0
 				}
 			]
