@@ -36,7 +36,6 @@ static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	// Set texture wrapping and filtering parameters to prevent seams
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -180,17 +179,17 @@ struct Building {
 		0.75f, 0.333f,  // Bottom-left
 		1.0f,  0.333f,  // Bottom-right
 
-		// -Y Face (neg Y)
+		// -Y Face (neg Y, Bottom)
 		0.25f, 0.333f,  // Top-left
 		0.25f, 0.0f,    // Bottom-left
 		0.5f,  0.0f,    // Bottom-right
 		0.5f,  0.333f,  // Top-right
 
-		// +Y Face (pos Y)
-		0.5f,  0.666f,  // Bottom-right
-		0.5f,  1.0f,    // Top-right
-		0.25f, 1.0f,    // Top-left
-		0.25f, 0.666f,  // Bottom-left
+		// +Y Face (pos Y, Top)
+		0.5f,  0.666f, 
+		0.5f,  1.0f,    
+		0.25f, 1.0f,    
+		0.25f, 0.666f   
 	};
 
 	// OpenGL buffers
@@ -229,7 +228,7 @@ struct Building {
 		glGenBuffers(1, &uvBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
-		textureID = LoadTextureTileBox("../../../lab2/studio_garden.png");
+		textureID = LoadTextureTileBox("../../../lab2/sky.png");
 
 		// Create an index buffer object to store the index data that defines triangle faces
 		glGenBuffers(1, &indexBufferID);
@@ -353,7 +352,7 @@ int main(void)
 	eye_center.z = viewDistance * sin(viewAzimuth);
 
 	glm::mat4 viewMatrix, projectionMatrix;
-	glm::float32 FoV = 45;
+	glm::float32 FoV = 90;
 	glm::float32 zNear = 0.1f;
 	glm::float32 zFar = 1000.0f;
 	projectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, zNear, zFar);

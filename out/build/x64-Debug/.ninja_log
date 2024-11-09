@@ -1,4 +1,5 @@
 # ninja log v5
+27	898	7527757832612304	CMakeFiles/lab2_skybox.dir/lab2/render/shader.cpp.obj	56e2100069d2336f
 407	1204	7523615857438953	glad.dll	d4f291d22551ced2
 28	392	7523576536140543	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/monitor.c.obj	26f475f5b76ba057
 42	406	7523615857438953	external/glad-3.3/CMakeFiles/glad.dir/src/gl.c.obj	e17d33584698a122
@@ -8,6 +9,7 @@
 33	422	7523576536429096	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/window.c.obj	97a30f6813216ee1
 19	604	7523576537739657	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/init.c.obj	e36adf49fb32ff26
 37	523	7523576537449488	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/win32_init.c.obj	61eb55d823240ef6
+20	595	7528498625836560	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
 407	1204	7523615857438953	glad.lib	d4f291d22551ced2
 394	665	7523576539076870	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/win32_time.c.obj	3b568e20f1c50e1b
 408	700	7523576539428600	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/win32_tls.c.obj	4033e8f0e2604576
@@ -19,26 +21,6 @@
 723	1028	7523576542478122	glfw3.dll	48661855dc5e5c33
 18	1187	7524190518210066	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	69a8ab6df4d63012
 1188	1343	7524190519314480	lab2_building.exe	f6c4935271e35712
-27	898	7527757832612304	CMakeFiles/lab2_skybox.dir/lab2/render/shader.cpp.obj	56e2100069d2336f
-23	1067	7527757834351530	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-1067	1369	7527757836880059	lab2_skybox.exe	17c38891be2a7ddb
-22	913	7527761661348109	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-914	1176	7527761663663052	lab2_skybox.exe	17c38891be2a7ddb
-38	948	7527770063478621	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-949	1114	7527770064743894	lab2_skybox.exe	17c38891be2a7ddb
-29	923	7527770569988635	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-924	1126	7527770571600444	lab2_skybox.exe	17c38891be2a7ddb
-16	639	7527770878114664	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-639	824	7527770879576160	lab2_skybox.exe	17c38891be2a7ddb
-16	615	7527773511449409	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-615	850	7527773513359340	lab2_skybox.exe	17c38891be2a7ddb
-17	713	7527775260545456	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-714	874	7527775261830645	lab2_skybox.exe	17c38891be2a7ddb
-15	715	7527776834794310	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-715	956	7527776836854042	lab2_skybox.exe	17c38891be2a7ddb
-24	687	7527777537906003	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-687	852	7527777539219545	lab2_skybox.exe	17c38891be2a7ddb
-17	802	7527778982823004	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-803	997	7527778984486116	lab2_skybox.exe	17c38891be2a7ddb
-45	1007	7527781932954830	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
-1008	1290	7527781935310924	lab2_skybox.exe	17c38891be2a7ddb
+596	744	7528498626943260	lab2_skybox.exe	17c38891be2a7ddb
+18	586	7528501425388032	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	a43c6774e54aef37
+586	794	7528501427116345	lab2_skybox.exe	17c38891be2a7ddb
