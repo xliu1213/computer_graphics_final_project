@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/xiyua/Desktop/lab2/external
+# Install script for directory: C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Users/xiyua/Desktop/lab2/out/install/x64-Debug")
+  set(CMAKE_INSTALL_PREFIX "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/install/x64-Debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,8 +34,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/external/glad-3.3/cmake_install.cmake")
-  include("C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/external/glfw-3.1.2/cmake_install.cmake")
+  include("C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug/external/glad-3.3/cmake_install.cmake")
+  include("C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug/external/glfw-3.1.2/cmake_install.cmake")
 
 endif()
 

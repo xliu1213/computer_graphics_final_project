@@ -137,28 +137,28 @@
 				{
 					"directoryIndex" : 2,
 					"id" : "glad::@df5e3ce796715454c4bb",
-					"jsonFile" : "target-glad-Debug-09bd49ea282d08b0b4ca.json",
+					"jsonFile" : "target-glad-Debug-a52684edc7b021afbfdf.json",
 					"name" : "glad",
 					"projectIndex" : 1
 				},
 				{
 					"directoryIndex" : 4,
 					"id" : "glfw::@160694664b387c03da1c",
-					"jsonFile" : "target-glfw-Debug-84dfe035a6ea4ca68690.json",
+					"jsonFile" : "target-glfw-Debug-757551b1335b6c98ab9e.json",
 					"name" : "glfw",
 					"projectIndex" : 2
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "lab2_building::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-lab2_building-Debug-ab4d088b43fc3b86da2d.json",
+					"jsonFile" : "target-lab2_building-Debug-e09914becdbc5b77c203.json",
 					"name" : "lab2_building",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "lab2_skybox::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-lab2_skybox-Debug-2b61407d7328d145d097.json",
+					"jsonFile" : "target-lab2_skybox-Debug-6673610937e30b18ea4d.json",
 					"name" : "lab2_skybox",
 					"projectIndex" : 0
 				}
@@ -168,8 +168,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug",
-		"source" : "C:/Users/xiyua/Desktop/lab2"
+		"build" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug",
+		"source" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2"
 	},
 	"version" : 
 	{

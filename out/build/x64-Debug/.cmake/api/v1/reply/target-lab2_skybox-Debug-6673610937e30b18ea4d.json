@@ -59,27 +59,27 @@
 			[
 				{
 					"backtrace" : 3,
-					"path" : "C:/Users/xiyua/Desktop/lab2/external/glfw-3.1.2/include"
+					"path" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external/glfw-3.1.2/include"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "C:/Users/xiyua/Desktop/lab2/external/glm-0.9.7.1"
+					"path" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external/glm-0.9.7.1"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "C:/Users/xiyua/Desktop/lab2/external/glad-opengl-3.3/include"
+					"path" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external/glad-opengl-3.3/include"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "C:/Users/xiyua/Desktop/lab2/external"
+					"path" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "C:/Users/xiyua/Desktop/lab2/lab2"
+					"path" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/lab2"
 				},
 				{
 					"backtrace" : 2,
-					"path" : "C:/Users/xiyua/Desktop/lab2/external/glad-3.3/include"
+					"path" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external/glad-3.3/include"
 				}
 			],
 			"language" : "CXX",

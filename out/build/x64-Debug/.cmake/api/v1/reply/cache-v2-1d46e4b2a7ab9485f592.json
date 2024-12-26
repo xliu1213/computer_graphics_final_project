@@ -51,7 +51,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/xiyua/Desktop/lab2/out/build/x64-Debug"
+			"value" : "c:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -135,10 +135,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "No help, variable specified on the command line."
+					"value" : "CXX compiler"
 				}
 			],
-			"type" : "FILEPATH",
+			"type" : "STRING",
 			"value" : "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/cl.exe"
 		},
 		{
@@ -247,10 +247,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "No help, variable specified on the command line."
+					"value" : "C compiler"
 				}
 			],
-			"type" : "FILEPATH",
+			"type" : "STRING",
 			"value" : "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/cl.exe"
 		},
 		{
@@ -479,7 +479,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -575,7 +575,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/xiyua/Desktop/lab2"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -587,7 +587,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Users/xiyua/Desktop/lab2/out/install/x64-Debug"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/install/x64-Debug"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -1147,7 +1147,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/external/glfw-3.1.2"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug/external/glfw-3.1.2"
 		},
 		{
 			"name" : "GLFW_BUILD_DOCS",
@@ -1243,7 +1243,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2/external/glfw-3.1.2"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external/glfw-3.1.2"
 		},
 		{
 			"name" : "GLFW_USE_EGL",
@@ -1335,7 +1335,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug/external/glad-3.3"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug/external/glad-3.3"
 		},
 		{
 			"name" : "glad_IS_TOP_LEVEL",
@@ -1359,7 +1359,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2/external/glad-3.3"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/external/glad-3.3"
 		},
 		{
 			"name" : "glfw_LIB_DEPENDS",
@@ -1383,7 +1383,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2/out/build/x64-Debug"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2/out/build/x64-Debug"
 		},
 		{
 			"name" : "lab2_IS_TOP_LEVEL",
@@ -1407,7 +1407,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/xiyua/Desktop/lab2"
+			"value" : "C:/Users/xiyua/Desktop/Computer Graphics/lab2 related content/lab2"
 		}
 	],
 	"kind" : "cache",
