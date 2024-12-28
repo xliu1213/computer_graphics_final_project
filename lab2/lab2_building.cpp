@@ -361,20 +361,23 @@ int main(void)
 
 	initializeShaders();
 
-	// Generate a centered block of buildings with a skyline-like effect
+	// Generate buildings in a new pattern without the middle column
 	for (int i = 0; i < 5; ++i) {
 		for (int j = 0; j < 5; ++j) {
+			// Skip the middle column
+			if (j == 2) continue;
+
 			Building b;
 
-			// Create a height gradient: taller in the center columns, shorter on the sides
-			float baseHeight = 50.0f + (4 - abs(2 - j)) * 20.0f; // Gradual increase towards the middle
-			float heightVariation = static_cast<float>(rand() % 21) - 10.0f; // Variation between -10 and +10
+			// Create a height gradient and random variation
+			float baseHeight = 50.0f + (4 - abs(2 - j)) * 20.0f;
+			float heightVariation = static_cast<float>(rand() % 21) - 10.0f;
 			float randomHeight = baseHeight + heightVariation;
 
 			glm::vec3 scale(16.0f, randomHeight, 16.0f);
 
-			// Correctly adjust position so that the bottom of each building is at y = 0
-			glm::vec3 position(i * 40.0f - 80.0f, scale.y / 2.0f, j * 40.0f - 80.0f);
+			// Adjust position for a more scattered layout
+			glm::vec3 position(i * 60.0f - 120.0f, scale.y / 2.0f - 50.0f, j * 60.0f - 120.0f);
 
 			b.initialize(position, scale);
 			buildings.push_back(b);
