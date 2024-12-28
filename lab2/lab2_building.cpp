@@ -399,20 +399,20 @@ int main(void)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Recalculate the camera view matrix
 		viewMatrix = glm::lookAt(eye_center, lookat, up);
 		glm::mat4 vp = projectionMatrix * viewMatrix;
 
 		// Render each building in the vector
 		for (auto& building : buildings) {
-			building.render(vp);
+			building.render(vp); // Pass the updated VP matrix
 		}
 
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
-	} // Check if the ESC key was pressed or the window was closed
-	while (!glfwWindowShouldClose(window));
+	} while (!glfwWindowShouldClose(window));
 
 	for (auto& building : buildings) {
 		building.cleanup();
@@ -431,48 +431,58 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (key == GLFW_KEY_R && action == GLFW_PRESS)
 	{
+		// Reset the camera view
 		viewAzimuth = 0.f;
-		viewPolar = 0.f;
 		eye_center = glm::vec3(0, 100, viewDistance);
 		cameraDirection = glm::normalize(lookat - eye_center);
 		right = glm::normalize(glm::cross(cameraDirection, up));
-		std::cout << "Reset." << std::endl;
+		lookat = eye_center + cameraDirection;
 	}
 
 	if ((key == GLFW_KEY_UP) && (action == GLFW_PRESS || action == GLFW_REPEAT))
 	{
-		// Move forward
+		// Move forward along the current direction
 		glm::vec3 forward = glm::normalize(cameraDirection);
 		eye_center += forward * 10.0f;
-		lookat += forward * 10.0f;
+		lookat = eye_center + cameraDirection;
 	}
 
 	if ((key == GLFW_KEY_DOWN) && (action == GLFW_PRESS || action == GLFW_REPEAT))
 	{
-		// Move backward
+		// Move backward along the current direction
 		glm::vec3 backward = glm::normalize(cameraDirection);
 		eye_center -= backward * 10.0f;
-		lookat -= backward * 10.0f;
+		lookat = eye_center + cameraDirection;
 	}
 
-	if ((key == GLFW_KEY_LEFT) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT))
 	{
-		// Turn left
-		viewAzimuth -= 0.1f;
-		viewAzimuth = fmod(viewAzimuth, 2 * M_PI); // Wrap within 0 to 2π
-		cameraDirection = glm::normalize(glm::vec3(cos(viewAzimuth), 0, sin(viewAzimuth)));
-		lookat = eye_center + cameraDirection * viewDistance;
+		// Rotate the view to the left
+		viewAzimuth -= 0.05f;
+
+		// Update camera direction based on the new azimuth angle
+		cameraDirection.x = cos(viewAzimuth);
+		cameraDirection.z = sin(viewAzimuth);
+
+		// Keep the camera's position constant but update the lookat point
+		lookat = eye_center + glm::normalize(cameraDirection);
 	}
 
-	if ((key == GLFW_KEY_RIGHT) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT))
 	{
-		// Turn right
-		viewAzimuth += 0.1f;
-		viewAzimuth = fmod(viewAzimuth, 2 * M_PI); // Wrap within 0 to 2π
-		cameraDirection = glm::normalize(glm::vec3(cos(viewAzimuth), 0, sin(viewAzimuth)));
-		lookat = eye_center + cameraDirection * viewDistance;
+		// Rotate the view to the right
+		viewAzimuth += 0.05f;
+
+		// Update camera direction based on the new azimuth angle
+		cameraDirection.x = cos(viewAzimuth);
+		cameraDirection.z = sin(viewAzimuth);
+
+		// Keep the camera's position constant but update the lookat point
+		lookat = eye_center + glm::normalize(cameraDirection);
 	}
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
 }
