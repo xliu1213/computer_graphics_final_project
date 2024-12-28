@@ -26,7 +26,7 @@ static glm::vec3 up(0, 1, 0);
 
 // View control 
 static float viewAzimuth = 0.f;
-static float viewPolar = 0.f;
+static float viewPolar = -0.25f * M_PI;
 static float viewDistance = 600.0f;
 
 static GLuint LoadTextureTileBox(const char *texture_file_path) {
@@ -361,22 +361,31 @@ int main(void)
 
 	initializeShaders();
 
-	// Generate a centered block of buildings
+	// Generate a centered block of buildings with a skyline-like effect
 	for (int i = 0; i < 5; ++i) {
 		for (int j = 0; j < 5; ++j) {
 			Building b;
-			glm::vec3 position(i * 40.0f - 80.0f, 0.0f, j * 40.0f - 80.0f);
-			float randomHeight = 50.0f + static_cast<float>(rand() % 71);
+
+			// Create a height gradient: taller in the center columns, shorter on the sides
+			float baseHeight = 50.0f + (4 - abs(2 - j)) * 20.0f; // Gradual increase towards the middle
+			float heightVariation = static_cast<float>(rand() % 21) - 10.0f; // Variation between -10 and +10
+			float randomHeight = baseHeight + heightVariation;
+
 			glm::vec3 scale(16.0f, randomHeight, 16.0f);
+
+			// Correctly adjust position so that the bottom of each building is at y = 0
+			glm::vec3 position(i * 40.0f - 80.0f, scale.y / 2.0f, j * 40.0f - 80.0f);
+
 			b.initialize(position, scale);
 			buildings.push_back(b);
 		}
 	}
 
 	// Camera setup
-    eye_center.y = viewDistance * cos(viewPolar);
-    eye_center.x = viewDistance * cos(viewAzimuth);
-    eye_center.z = viewDistance * sin(viewAzimuth);
+	viewPolar = 0.0f; // Set polar angle to 0 for a horizontal view
+	eye_center.y = 100.0f; // Adjust this value based on the average height of buildings
+	eye_center.x = viewDistance * cos(viewAzimuth);
+	eye_center.z = viewDistance * sin(viewAzimuth);
 
 	glm::mat4 viewMatrix, projectionMatrix;
     glm::float32 FoV = 45;
