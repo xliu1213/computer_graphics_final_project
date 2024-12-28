@@ -27,7 +27,7 @@ static glm::vec3 up(0, 1, 0);
 // View control 
 static float viewAzimuth = 0.f;
 static float viewPolar = 0.f;
-static float viewDistance = 300.0f;
+static float viewDistance = 600.0f;
 
 static GLuint LoadTextureTileBox(const char *texture_file_path) {
     int w, h, channels;
@@ -51,6 +51,21 @@ static GLuint LoadTextureTileBox(const char *texture_file_path) {
     stbi_image_free(img);
 
     return texture;
+}
+
+// Global Shader Program ID
+GLuint globalProgramID;
+
+void initializeShaders() {
+	globalProgramID = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
+	if (globalProgramID == 0) {
+		std::cerr << "Failed to load shaders." << std::endl;
+		exit(EXIT_FAILURE);
+	}
+}
+
+void cleanupShaders() {
+	glDeleteProgram(globalProgramID);
 }
 
 struct Building {
@@ -248,20 +263,13 @@ struct Building {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_STATIC_DRAW);
 
-		// Create and compile our GLSL program from the shaders
-		programID = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
-		if (programID == 0)
-		{
-			std::cerr << "Failed to load shaders." << std::endl;
-		}
-
-		// Get a handle for our "MVP" uniform
-		mvpMatrixID = glGetUniformLocation(programID, "MVP");
-		textureSamplerID = glGetUniformLocation(programID, "textureSampler");
+		// Use the global shader program
+		mvpMatrixID = glGetUniformLocation(globalProgramID, "MVP");
+		textureSamplerID = glGetUniformLocation(globalProgramID, "textureSampler");
 	}
 
 	void render(glm::mat4 cameraMatrix) {
-		glUseProgram(programID);
+		glUseProgram(globalProgramID);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
@@ -273,12 +281,10 @@ struct Building {
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
-		// Model transform
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, position); // Apply translation
-		modelMatrix = glm::scale(modelMatrix, scale);        // Apply scaling
+		modelMatrix = glm::translate(modelMatrix, position);
+		modelMatrix = glm::scale(modelMatrix, scale);
 
-		// Set model-view-projection matrix
 		glm::mat4 mvp = cameraMatrix * modelMatrix;
 		glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
 
@@ -286,22 +292,15 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-		// Set textureSampler to use texture unit 0 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glUniform1i(textureSamplerID, 0);
 
-		// Draw the box
-		glDrawElements(
-			GL_TRIANGLES,      // mode
-			36,    			   // number of indices
-			GL_UNSIGNED_INT,   // type
-			(void*)0           // element array buffer offset
-		);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
-        //glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(2);
 	}
 
 	void cleanup() {
@@ -309,9 +308,7 @@ struct Building {
 		glDeleteBuffers(1, &colorBufferID);
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
-		//glDeleteBuffers(1, &uvBufferID);
-		//glDeleteTextures(1, &textureID);
-		glDeleteProgram(programID);
+		glDeleteTextures(1, &textureID);
 	}
 }; 
 
@@ -362,18 +359,15 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
+	initializeShaders();
+
 	// Generate a centered block of buildings
 	for (int i = 0; i < 5; ++i) {
 		for (int j = 0; j < 5; ++j) {
 			Building b;
-
-			// Center the grid by offsetting positions
 			glm::vec3 position(i * 40.0f - 80.0f, 0.0f, j * 40.0f - 80.0f);
-
-			// Randomize height for variety, for example, between 50 and 120 units
-			float randomHeight = 50.0f + static_cast<float>(rand() % 71); // Random height between 50 and 120
+			float randomHeight = 50.0f + static_cast<float>(rand() % 71);
 			glm::vec3 scale(16.0f, randomHeight, 16.0f);
-
 			b.initialize(position, scale);
 			buildings.push_back(b);
 		}
@@ -409,12 +403,10 @@ int main(void)
 	} // Check if the ESC key was pressed or the window was closed
 	while (!glfwWindowShouldClose(window));
 
-	// Clean up each building in the vector
 	for (auto& building : buildings) {
 		building.cleanup();
 	}
-
-	// Close OpenGL window and terminate GLFW
+	cleanupShaders();
 	glfwTerminate();
 
 	return 0;
