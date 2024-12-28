@@ -26,7 +26,7 @@ static glm::vec3 up(0, 1, 0);
 
 // View control 
 static float viewAzimuth = 0.f;
-static float viewPolar = -0.25f * M_PI;
+static float viewPolar = 0.f;
 static float viewDistance = 600.0f;
 
 static GLuint LoadTextureTileBox(const char *texture_file_path) {
@@ -56,7 +56,7 @@ static GLuint LoadTextureTileBox(const char *texture_file_path) {
 // Global Shader Program ID
 GLuint globalProgramID;
 
-void initializeShaders() {
+void static initializeShaders() {
 	globalProgramID = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
 	if (globalProgramID == 0) {
 		std::cerr << "Failed to load shaders." << std::endl;
@@ -64,7 +64,7 @@ void initializeShaders() {
 	}
 }
 
-void cleanupShaders() {
+void static cleanupShaders() {
 	glDeleteProgram(globalProgramID);
 }
 
@@ -382,7 +382,6 @@ int main(void)
 	}
 
 	// Camera setup
-	viewPolar = 0.0f; // Set polar angle to 0 for a horizontal view
 	eye_center.y = 100.0f; // Adjust this value based on the average height of buildings
 	eye_center.x = viewDistance * cos(viewAzimuth);
 	eye_center.z = viewDistance * sin(viewAzimuth);
