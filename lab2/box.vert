@@ -1,14 +1,12 @@
 #version 330 core
 
+// Input
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec3 vertexColor;
-layout(location = 2) in vec3 vertexNormal; // for lighting
-layout(location = 3) in vec2 vertexUV;        // vertex UV coordinates for texture mapping
+layout(location = 2) in vec2 vertexUV;        // vertex UV coordinates for texture mapping
 
 // Output data, to be interpolated for each fragment
 out vec3 color;
-out vec3 worldPosition; // for lighting
-out vec3 worldNormal; // for lighting
 out vec2 uv;    // Pass UV to fragment shader
 
 // Matrix for vertex transformation
@@ -23,10 +21,4 @@ void main() {
 
     // Pass UV to the fragment shader
     uv = vertexUV;
-
-    // Transform vertex position to world space
-    worldPosition = vertexPosition;
-
-    // Transform normal vector to world space (using normal matrix)
-    worldNormal = vertexNormal;
 }
