@@ -114,13 +114,29 @@ struct Building {
 
 	GLfloat normal_buffer_data[72] = {
 		// Front face (verified)
-		0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		// Back face
-		0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
-		// Left face
-		-1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-		// Right face
-		1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 
+		0.0f, 0.0f, 1.0f, 
+		0.0f, 0.0f, 1.0f, 
+		0.0f, 0.0f, 1.0f,
+
+		// Back face (verified)
+		0.0f, 0.0f, -1.0f, 
+		0.0f, 0.0f, -1.0f, 
+		0.0f, 0.0f, -1.0f, 
+		0.0f, 0.0f, -1.0f,
+
+		// Left face (verified)
+		-1.0f, 0.0f, 0.0f, 
+		-1.0f, 0.0f, 0.0f, 
+		-1.0f, 0.0f, 0.0f, 
+		-1.0f, 0.0f, 0.0f,
+
+		// Right face (verified)
+		1.0f, 0.0f, 0.0f, 
+		1.0f, 0.0f, 0.0f, 
+		1.0f, 0.0f, 0.0f, 
+		1.0f, 0.0f, 0.0f,
+
 		// Top face
 		0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 		// Bottom face
@@ -228,9 +244,9 @@ struct Building {
 	GLuint indexBufferID; 
 	GLuint colorBufferID;
 	GLuint normalBufferID;
+	GLuint exposureID; // Uniform location for exposure
 	GLuint uvBufferID;
 	GLuint textureID;
-	GLuint exposureID; // Uniform location for exposure
 
 	// Shader variable IDs
 	GLuint mvpMatrixID;
@@ -272,13 +288,6 @@ struct Building {
 		for (int i = 0; i < 72; ++i) color_buffer_data[i] = 1.0f;
 		glBufferData(GL_ARRAY_BUFFER, sizeof(color_buffer_data), color_buffer_data, GL_STATIC_DRAW);
 
-		for (int i = 0; i < 24; ++i) uv_buffer_data[2 * i + 1] *= 5;
-
-		// Create a vertex buffer object to store the UV data 
-		glGenBuffers(1, &uvBufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
-
 		// Create a vertex buffer object to store the vertex normals		
 		glGenBuffers(1, &normalBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
@@ -289,12 +298,19 @@ struct Building {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_STATIC_DRAW);
 
+		for (int i = 0; i < 24; ++i) uv_buffer_data[2 * i + 1] *= 5;
+
+		// Create a vertex buffer object to store the UV data 
+		glGenBuffers(1, &uvBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
+
 		// Use the global shader program
 		mvpMatrixID = glGetUniformLocation(programID, "MVP");
 		lightPositionID = glGetUniformLocation(programID, "lightPosition"); // for lighting
 		lightIntensityID = glGetUniformLocation(programID, "lightIntensity"); // for lighting
-		textureSamplerID = glGetUniformLocation(programID, "textureSampler");
 		exposureID = glGetUniformLocation(programID, "exposure"); // for lighting
+		textureSamplerID = glGetUniformLocation(programID, "textureSampler");
 	}
 
 	void render(glm::mat4 cameraMatrix) {
@@ -309,13 +325,12 @@ struct Building {
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-		// Normals
-		glEnableVertexAttribArray(3);
 		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glEnableVertexAttribArray(3);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
@@ -351,8 +366,8 @@ struct Building {
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteBuffers(1, &normalBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
-		glDeleteTextures(1, &textureID);
 		glDeleteProgram(programID);
+		glDeleteTextures(1, &textureID);
 	}
 }; 
 
