@@ -121,6 +121,37 @@ struct Building {
 		-1.0f, -1.0f, 1.0f,
 	};
 
+	GLfloat normal_buffer_data[72] = {
+		// Front face (verified)
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		// Back face (verified)
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+
+		// Left face (verified)
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+
+		// Right face (verified)
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+
+		// Top face
+		0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		// Bottom face
+		0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+	};
+
 	GLfloat color_buffer_data[72] = {
 		// Front, red
 		1.0f, 0.0f, 0.0f,
@@ -223,11 +254,14 @@ struct Building {
 	GLuint colorBufferID;
 	GLuint uvBufferID;
 	GLuint textureID;
+	GLuint normalBufferID;
+	GLuint exposureID; // Uniform location for exposure
 
 	// Shader variable IDs
 	GLuint mvpMatrixID;
 	GLuint textureSamplerID;
-	GLuint programID;
+	GLuint lightPositionID;
+	GLuint lightIntensityID;
 
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		this->position = position;
@@ -264,6 +298,11 @@ struct Building {
 
 		for (int i = 0; i < 24; ++i) uv_buffer_data[2 * i + 1] *= 5;
 
+		// Create a vertex buffer object to store the vertex normals		
+		glGenBuffers(1, &normalBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(normal_buffer_data), normal_buffer_data, GL_STATIC_DRAW);
+
 		// Create a vertex buffer object to store the UV data 
 		glGenBuffers(1, &uvBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
@@ -277,6 +316,9 @@ struct Building {
 		// Use the global shader program
 		mvpMatrixID = glGetUniformLocation(globalProgramID, "MVP");
 		textureSamplerID = glGetUniformLocation(globalProgramID, "textureSampler");
+		lightPositionID = glGetUniformLocation(globalProgramID, "lightPosition");
+		lightIntensityID = glGetUniformLocation(globalProgramID, "lightIntensity");
+		exposureID = glGetUniformLocation(globalProgramID, "exposure"); // Get the uniform location
 	}
 
 	void render(glm::mat4 cameraMatrix) {
@@ -303,15 +345,27 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
+		glEnableVertexAttribArray(3);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glUniform1i(textureSamplerID, 0);
+
+		// Set light data 
+		glUniform3fv(lightPositionID, 1, &lightPosition[0]);
+		glUniform3fv(lightIntensityID, 1, &lightIntensity[0]);
+
+		float exposure = 36.0f;
+		glUniform1f(exposureID, exposure); // Set the exposure uniform
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
 	}
 
 	void cleanup() {
@@ -320,6 +374,7 @@ struct Building {
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
+		glDeleteBuffers(1, &normalBufferID);
 	}
 };
 
@@ -355,6 +410,7 @@ int main(void)
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_callback);
 
 	// Load OpenGL functions, gladLoadGL returns the loaded version, 0 on error.
 	int version = gladLoadGL(glfwGetProcAddress);
