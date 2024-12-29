@@ -61,11 +61,11 @@ static GLuint LoadTextureTileBox(const char *texture_file_path) {
 }
 
 // Global Shader Program ID
-GLuint globalProgramID;
+GLuint programID;
 
 void static initializeShaders() {
-	globalProgramID = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
-	if (globalProgramID == 0) {
+	programID = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
+	if (programID == 0) {
 		std::cerr << "Failed to load shaders." << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -75,8 +75,7 @@ struct Building {
 	glm::vec3 position;		// Position of the box 
 	glm::vec3 scale;		// Size of the box in each axis
 	
-	GLfloat vertex_buffer_data[72] = {	// Vertex definition for a canonical box
-		// Front face
+	GLfloat vertex_buffer_data[72] = {	
 		-1.0f, -1.0f, 1.0f, 
 		1.0f, -1.0f, 1.0f, 
 		1.0f, 1.0f, 1.0f, 
@@ -111,6 +110,21 @@ struct Building {
 		1.0f, -1.0f, -1.0f, 
 		1.0f, -1.0f, 1.0f, 
 		-1.0f, -1.0f, 1.0f, 
+	};
+
+	GLfloat normal_buffer_data[72] = {
+		// Front face (verified)
+		0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		// Back face
+		0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
+		// Left face
+		-1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		// Right face
+		1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		// Top face
+		0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		// Bottom face
+		0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
 	};
 
 	GLfloat color_buffer_data[72] = {
@@ -215,14 +229,15 @@ struct Building {
 	GLuint colorBufferID;
 	GLuint uvBufferID;
 	GLuint textureID;
+	GLuint exposureID; // Uniform location for exposure
 
 	// Shader variable IDs
 	GLuint mvpMatrixID;
-	GLuint textureSamplerID;
-	GLuint programID;
 	GLuint lightPositionID; // for lighting
 	GLuint lightIntensityID; // for lighting
-
+	GLuint programID;
+	GLuint textureSamplerID;
+	
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		this->position = position;
 		this->scale = scale; 
@@ -269,14 +284,15 @@ struct Building {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_STATIC_DRAW);
 
 		// Use the global shader program
-		mvpMatrixID = glGetUniformLocation(globalProgramID, "MVP");
-		textureSamplerID = glGetUniformLocation(globalProgramID, "textureSampler");
+		mvpMatrixID = glGetUniformLocation(programID, "MVP");
 		lightPositionID = glGetUniformLocation(programID, "lightPosition"); // for lighting
 		lightIntensityID = glGetUniformLocation(programID, "lightIntensity"); // for lighting
+		textureSamplerID = glGetUniformLocation(programID, "textureSampler");
+		exposureID = glGetUniformLocation(programID, "exposure"); // for lighting
 	}
 
 	void render(glm::mat4 cameraMatrix) {
-		glUseProgram(globalProgramID);
+		glUseProgram(programID);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
@@ -303,6 +319,9 @@ struct Building {
 		glUniform3fv(lightPositionID, 1, &lightPosition[0]);
 		glUniform3fv(lightIntensityID, 1, &lightIntensity[0]);
 
+		float exposure = 36.0f;
+		glUniform1f(exposureID, exposure); // Set the exposure uniform
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glUniform1i(textureSamplerID, 0);
@@ -320,7 +339,7 @@ struct Building {
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
-		glDeleteProgram(globalProgramID);
+		glDeleteProgram(programID);
 	}
 }; 
 
