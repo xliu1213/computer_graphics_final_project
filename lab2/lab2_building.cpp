@@ -227,6 +227,7 @@ struct Building {
 	GLuint vertexBufferID; 
 	GLuint indexBufferID; 
 	GLuint colorBufferID;
+	GLuint normalBufferID;
 	GLuint uvBufferID;
 	GLuint textureID;
 	GLuint exposureID; // Uniform location for exposure
@@ -278,6 +279,11 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
 
+		// Create a vertex buffer object to store the vertex normals		
+		glGenBuffers(1, &normalBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(normal_buffer_data), normal_buffer_data, GL_STATIC_DRAW);
+
 		// Create an index buffer object to store the index data that defines triangle faces
 		glGenBuffers(1, &indexBufferID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
@@ -306,6 +312,11 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
+		// Normals
+		glEnableVertexAttribArray(3);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 
 		// Set model-view-projection matrix
@@ -331,12 +342,14 @@ struct Building {
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
 	}
 
 	void cleanup() {
 		glDeleteBuffers(1, &vertexBufferID);
 		glDeleteBuffers(1, &colorBufferID);
 		glDeleteBuffers(1, &indexBufferID);
+		glDeleteBuffers(1, &normalBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
 		glDeleteProgram(programID);

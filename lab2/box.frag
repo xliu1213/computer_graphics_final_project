@@ -28,8 +28,8 @@ void main()
     // Cosine of the angle between the light direction and the surface normal
     float cosine = max(dot(N, L), 0.0);
 
-    // Light source irradiance (attenuated by distance squared)
-    vec3 lightSourceIrradiance = lightIntensity / (4.0 * 3.14159 * pow(length(lightPosition - worldPosition), 2.0));
+    float distance = max(length(lightPosition - worldPosition), 0.1); // Avoid division by zero
+    vec3 lightSourceIrradiance = lightIntensity / (4.0 * 3.14159 * distance * distance);
 
     // Diffuse lighting computation
     vec3 diffuse = BRDF * cosine * lightSourceIrradiance;
