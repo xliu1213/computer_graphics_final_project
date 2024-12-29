@@ -19,6 +19,7 @@
 387	711	7571397464780829	external/glfw-3.1.2/src/CMakeFiles/glfw.dir/wgl_context.c.obj	c699539dc09b3ad6
 712	871	7571397464780829	glfw3.dll	48661855dc5e5c33
 753	992	7571657768708781	lab2_skybox.exe	17c38891be2a7ddb
+<<<<<<< HEAD
 9	702	7571397464661749	CMakeFiles/lab2_building.dir/lab2/render/shader.cpp.obj	a51b27bbb98e45a3
 55	744	7571829554897827	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
 745	976	7571829556673387	lab2_building.exe	f6c4935271e35712
@@ -30,3 +31,21 @@
 764	976	7571839914152281	lab2_building.exe	f6c4935271e35712
 24	679	7571840056971294	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
 680	888	7571840058595720	lab2_building.exe	f6c4935271e35712
+=======
+21	782	7571658811873275	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+782	1014	7571658813775940	lab2_building.exe	f6c4935271e35712
+27	1019	7571672908369398	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+1019	1304	7571672910634174	lab2_building.exe	f6c4935271e35712
+22	855	7571673370270111	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+856	1058	7571673371918848	lab2_building.exe	f6c4935271e35712
+20	733	7571675779385624	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+733	985	7571675781249313	lab2_building.exe	f6c4935271e35712
+25	740	7571677975600636	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+740	954	7571677977110238	lab2_building.exe	f6c4935271e35712
+26	650	7571678079907516	CMakeFiles/lab2_skybox.dir/lab2/lab2_skybox.cpp.obj	da6689ca2f44c37d
+651	872	7571678081697861	lab2_skybox.exe	17c38891be2a7ddb
+>>>>>>> b795b43be372383375d42fa1f01f6fba785bd18b
+4	1103	7571861572892146	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+1104	1463	7571861574909097	lab2_building.exe	f6c4935271e35712
+24	750	7571865857768530	CMakeFiles/lab2_building.dir/lab2/lab2_building.cpp.obj	bb994f3606e3225f
+751	937	7571865859208422	lab2_building.exe	f6c4935271e35712

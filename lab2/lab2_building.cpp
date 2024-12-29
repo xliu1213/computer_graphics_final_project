@@ -40,6 +40,7 @@ static glm::vec3 lightPosition = glm::vec3(0.0f, 300.0f, 0.0f);
 static float viewAzimuth = 0.f;
 static float viewPolar = 0.f;
 static float viewDistance = 600.0f;
+static float viewDistanceSkybox = 1.0f;
 
 static GLuint LoadTextureTileBox(const char *texture_file_path) {
     int w, h, channels;
@@ -74,10 +75,6 @@ void static initializeShaders() {
 		std::cerr << "Failed to load shaders." << std::endl;
 		exit(EXIT_FAILURE);
 	}
-}
-
-void static cleanupShaders() {
-	glDeleteProgram(globalProgramID);
 }
 
 struct Building {
@@ -229,6 +226,8 @@ struct Building {
 	GLuint mvpMatrixID;
 	GLuint textureSamplerID;
 	GLuint programID;
+	GLuint lightPositionID; // for lighting
+	GLuint lightIntensityID; // for lighting
 
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		this->position = position;
@@ -278,6 +277,8 @@ struct Building {
 		// Use the global shader program
 		mvpMatrixID = glGetUniformLocation(globalProgramID, "MVP");
 		textureSamplerID = glGetUniformLocation(globalProgramID, "textureSampler");
+		lightPositionID = glGetUniformLocation(programID, "lightPosition"); // for lighting
+		lightIntensityID = glGetUniformLocation(programID, "lightIntensity"); // for lighting
 	}
 
 	void render(glm::mat4 cameraMatrix) {
@@ -291,18 +292,22 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, position);
-		modelMatrix = glm::scale(modelMatrix, scale);
-
-		glm::mat4 mvp = cameraMatrix * modelMatrix;
-		glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
-
 		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+
+		// Set model-view-projection matrix
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, position);
+		modelMatrix = glm::scale(modelMatrix, scale);
+		glm::mat4 mvp = cameraMatrix * modelMatrix;
+		glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+		// Set light data 
+		glUniform3fv(lightPositionID, 1, &lightPosition[0]);
+		glUniform3fv(lightIntensityID, 1, &lightIntensity[0]);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
@@ -321,6 +326,7 @@ struct Building {
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
+		glDeleteProgram(globalProgramID);
 	}
 }; 
 
@@ -413,11 +419,11 @@ int main(void)
 
 		// Recalculate the camera view matrix
 		viewMatrix = glm::lookAt(eye_center, lookat, up);
-		glm::mat4 vp = projectionMatrix * viewMatrix;
+		glm::mat4 buildingsVP = projectionMatrix * viewMatrix;
 
-		// Render each building in the vector
+		// Render the buildings next
 		for (auto& building : buildings) {
-			building.render(vp); // Pass the updated VP matrix
+			building.render(buildingsVP);
 		}
 
 		// Swap buffers
@@ -425,11 +431,9 @@ int main(void)
 		glfwPollEvents();
 
 	} while (!glfwWindowShouldClose(window));
-
 	for (auto& building : buildings) {
 		building.cleanup();
 	}
-	cleanupShaders();
 	glfwTerminate();
 
 	return 0;
