@@ -38,6 +38,15 @@ const glm::vec3 wave700(205.0f, 0.0f, 0.0f);
 static glm::vec3 lightIntensity = 5.0f * (8.0f * wave500 + 15.6f * wave600 + 18.4f * wave700);
 static glm::vec3 lightPosition = glm::vec3(1000.0f, 50.0f, 0.0f);
 
+// Shadow mapping
+static glm::vec3 lightUp(0, 0, 1);
+static int shadowMapWidth = 0;
+static int shadowMapHeight = 0;
+
+static float depthFoV = 90.0f;
+static float depthNear = 20.0f;
+static float depthFar = 800.0f;
+
 static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	int w, h, channels;
 	uint8_t* img = stbi_load(texture_file_path, &w, &h, &channels, 3);
@@ -262,6 +271,77 @@ struct Building {
 	GLuint lightPositionID;
 	GLuint lightIntensityID;
 
+	GLuint fbo; // Framebuffer Object (FBO) for shadow map rendering
+	GLuint shadowMap; // Texture to store the shadow map
+
+	GLuint shadowMapShaderProgramID; // Shader program ID for shadow map pass
+	GLuint lightViewMatrixProjectionMatrixID; // Uniform location for the light view-projection matrix in the shadow map shader
+	GLuint shadowMapTextureUnitID; // Uniform location for shadow map texture unit in the lighting shader
+	GLuint lightSpaceTransformID; // Uniform location for the light-space transformation matrix in the lighting shader
+
+	void ShadowMapFBO() {
+		glGenFramebuffers(1, &fbo); // Generate the framebuffer
+		glGenTextures(1, &shadowMap); // Generate the texture for the shadow map
+		glBindTexture(GL_TEXTURE_2D, shadowMap); // Bind the texture
+		// Define the texture format as a depth component with no initial data
+
+		// Set texture parameters for shadow mapping
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Bind the framebuffer
+		// Attach the shadow map texture as the depth attachment of the framebuffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap, 0);
+		// No color buffer is drawn or read
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind the framebuffer
+	}
+
+	void ShadowMapPass(Building& b, const glm::mat4& lightSpaceTransformMatrix) {
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo); // Bind the framebuffer for shadow map rendering
+		glViewport(0, 0, shadowMapWidth, shadowMapHeight); // Set the viewport to match the shadow map resolution
+		glClear(GL_DEPTH_BUFFER_BIT); // Clear the depth buffer
+		glUseProgram(shadowMapShaderProgramID); // Use the shadow map shader program
+		// Pass the light view-projection matrix to the shader
+		glUniformMatrix4fv(lightViewMatrixProjectionMatrixID, 1, GL_FALSE, &lightSpaceTransformMatrix[0][0]);
+
+		// Set up vertex attributes for shadow map rendering
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, b.vertexBufferID);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		// Bind the index buffer and render the geometry
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, b.indexBufferID);
+		glDrawElements(GL_TRIANGLES, 90, GL_UNSIGNED_INT, (void*)0);
+		glDisableVertexAttribArray(0); // Disable vertex attributes
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind the framebuffer
+	}
+
+	void LightingPass(glm::mat4 cameraMatrix, glm::mat4 lightSpaceTransformMatrix) {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // Bind the default framebuffer for rendering to the screen
+		glViewport(0, 0, windowWidth, windowHeight); // Set the viewport to the window size
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the color and depth buffers
+		glUseProgram(globalProgramID); // Use the lighting shader program
+
+		// Bind the shadow map texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, shadowMap);
+
+		// Pass the camera matrix (view-projection) to the shader
+		glm::mat4 mvp = cameraMatrix;
+		glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+		// Pass the light-space transformation matrix to the shader
+		glUniformMatrix4fv(lightSpaceTransformID, 1, GL_FALSE, &lightSpaceTransformMatrix[0][0]);
+
+		// Pass light properties to the shader
+		glUniform3fv(lightPositionID, 1, &lightPosition[0]);
+		glUniform3fv(lightIntensityID, 1, &lightIntensity[0]);
+	}
+
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		this->position = position;
 		this->scale = scale;
@@ -318,6 +398,19 @@ struct Building {
 		lightPositionID = glGetUniformLocation(globalProgramID, "lightPosition");
 		lightIntensityID = glGetUniformLocation(globalProgramID, "lightIntensity");
 		exposureID = glGetUniformLocation(globalProgramID, "exposure"); // Get the uniform location
+
+		ShadowMapFBO(); // Initialize shadow mapping framebuffer
+		// Get uniform location for light-space transformation matrix in the lighting shader
+		lightSpaceTransformID = glGetUniformLocation(globalProgramID, "lightSpaceTransformMatrix");
+
+		// Load and compile shadow map shader program
+		shadowMapShaderProgramID = LoadShadersFromFile("../../../lab2/shadowMap.vert", "../../../lab2/shadowMap.frag");
+		if (shadowMapShaderProgramID == 0) {
+			std::cerr << "Failed to load shadow map shaders." << std::endl;
+		}
+
+		// Get uniform location for light-space transformation matrix in the shadow map shader
+		lightViewMatrixProjectionMatrixID = glGetUniformLocation(shadowMapShaderProgramID, "lightSpaceTransformMatrix");
 	}
 
 	void render(glm::mat4 cameraMatrix) {
@@ -374,6 +467,7 @@ struct Building {
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
 		glDeleteBuffers(1, &normalBufferID);
+		glDeleteProgram(shadowMapShaderProgramID);
 	}
 };
 
@@ -418,6 +512,8 @@ int main(void)
 		return -1;
 	}
 
+	glfwGetFramebufferSize(window, &shadowMapWidth, &shadowMapHeight);
+
 	// Background
 	glClearColor(0.68f, 0.85f, 0.90f, 1.0f);
 
@@ -459,7 +555,7 @@ int main(void)
 	glm::float32 zNear = 0.1f;
 	glm::float32 zFar = 1000.0f;
 	projectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, zNear, zFar);
-
+	glm::vec3 lightFocusPoint = calculateSceneCenter(buildings);
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -469,9 +565,20 @@ int main(void)
 
 		glm::mat4 buildingsVP = projectionMatrix * viewMatrix;
 
-		// Render the buildings next
+		// Shadow mapping setup
+		glm::mat4 lightPerspectiveMatrix = glm::perspective(glm::radians(depthFoV), (float)shadowMapWidth / shadowMapHeight, depthNear, depthFar);
+		glm::mat4 lightViewMatrix = glm::lookAt(lightPosition, lightFocusPoint, lightUp);
+		glm::mat4 lightSpaceTransformMatrix = lightPerspectiveMatrix * lightViewMatrix;
+
+		// Shadow pass: Render the scene from the light's perspective into the shadow map
 		for (auto& building : buildings) {
-			building.render(buildingsVP);
+			building.ShadowMapPass(building, lightSpaceTransformMatrix);
+		}
+
+		// Lighting pass: Render the scene from the camera's perspective using the shadow map
+		for (auto& building : buildings) {
+			building.LightingPass(buildingsVP, lightSpaceTransformMatrix);
+			building.render(buildingsVP); // Final render of buildings
 		}
 
 		// Swap buffers
@@ -486,6 +593,20 @@ int main(void)
 	glfwTerminate();
 
 	return 0;
+}
+
+
+static glm::vec3 calculateSceneCenter(const std::vector<Building>& buildings) {
+	glm::vec3 center(0.0f);
+	if (buildings.empty()) {
+		return center; // Return (0, 0, 0) if there are no buildings
+	}
+
+	for (const auto& building : buildings) {
+		center += building.position;
+	}
+	center /= static_cast<float>(buildings.size());
+	return center;
 }
 
 // Is called whenever a key is pressed/released via GLFW
