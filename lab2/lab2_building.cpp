@@ -255,7 +255,7 @@ struct Skybox {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data_skybox), index_buffer_data_skybox, GL_STATIC_DRAW);
 
 		// Create and compile our GLSL program from the shaders
-		programIDskybox = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
+		programIDskybox = LoadShadersFromFile("../../../lab2/sky.vert", "../../../lab2/sky.frag");
 		if (programIDskybox == 0)
 		{
 			std::cerr << "Failed to load shaders." << std::endl;
@@ -742,5 +742,3 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
-
-
