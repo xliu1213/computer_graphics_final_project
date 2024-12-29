@@ -2,11 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <render/shader.h>
-#define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
+#include <render/shader.h>
 #include <vector>
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -14,6 +12,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 static GLFWwindow *window;
 static int windowWidth = 1024;
@@ -21,13 +21,7 @@ static int windowHeight = 768;
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 static void cursor_callback(GLFWwindow* window, double xpos, double ypos);
 
-// OpenGL camera view parameters
 static glm::vec3 eye_center;
-static glm::vec3 lookat(0, 0, 0);
-static glm::vec3 up(0, 1, 0);
-static float FoV = 45;
-static float zNear = 0.1f;
-static float zFar = 1000.0f;
 
 // Lighting control
 const glm::vec3 wave500(0.0f, 255.0f, 146.0f);
@@ -405,6 +399,11 @@ int main(void)
 	}
 
 	// Camera setup
+	static glm::vec3 lookat(0, 0, 0);
+	static glm::vec3 up(0, 1, 0);
+	static float FoV = 45;
+	static float zNear = 0.1f;
+	static float zFar = 1000.0f;
 	eye_center.y = 100.0f; // Adjust this value based on the average height of buildings
 	eye_center.x = viewDistance * cos(viewAzimuth);
 	eye_center.z = viewDistance * sin(viewAzimuth);
