@@ -363,6 +363,8 @@ int main(void)
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glfwSetKeyCallback(window, key_callback);
 
+	glfwSetCursorPosCallback(window, cursor_callback);
+
 	// Load OpenGL functions, gladLoadGL returns the loaded version, 0 on error.
 	int version = gladLoadGL(glfwGetProcAddress);
 	if (version == 0)
@@ -408,20 +410,17 @@ int main(void)
 	eye_center.z = viewDistance * sin(viewAzimuth);
 
 	glm::mat4 viewMatrix, projectionMatrix;
-    glm::float32 FoV = 45;
-	glm::float32 zNear = 0.1f; 
-	glm::float32 zFar = 1000.0f;
 	projectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, zNear, zFar);
 
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Recalculate the camera view matrix
+		// Calculate the camera view matrix
 		viewMatrix = glm::lookAt(eye_center, lookat, up);
 		glm::mat4 buildingsVP = projectionMatrix * viewMatrix;
 
-		// Render the buildings next
+		// Render the buildings 
 		for (auto& building : buildings) {
 			building.render(buildingsVP);
 		}
@@ -429,11 +428,12 @@ int main(void)
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 	} while (!glfwWindowShouldClose(window));
+
 	for (auto& building : buildings) {
 		building.cleanup();
 	}
+
 	glfwTerminate();
 
 	return 0;
