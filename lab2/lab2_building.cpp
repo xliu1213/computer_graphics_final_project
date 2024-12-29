@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <render/shader.h>
-
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -28,6 +28,13 @@ static glm::vec3 up(0, 1, 0);
 static float viewAzimuth = 0.f;
 static float viewPolar = 0.f;
 static float viewDistance = 600.0f;
+
+// Lighting control 
+const glm::vec3 wave500(0.0f, 255.0f, 146.0f);
+const glm::vec3 wave600(255.0f, 190.0f, 0.0f);
+const glm::vec3 wave700(205.0f, 0.0f, 0.0f);
+static glm::vec3 lightIntensity = 5.0f * (8.0f * wave500 + 15.6f * wave600 + 18.4f * wave700);
+static glm::vec3 lightPosition = glm::vec3(100.0f, 50.0f, 1000.0f);
 
 static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	int w, h, channels;
@@ -109,6 +116,37 @@ struct Building {
 		1.0f, -1.0f, -1.0f,
 		1.0f, -1.0f, 1.0f,
 		-1.0f, -1.0f, 1.0f,
+	};
+
+	GLfloat normal_buffer_data[72] = {
+		// Front face (verified)
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		// Back face (verified)
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+
+		// Left face (verified)
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+
+		// Right face (verified)
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+
+		// Top face
+		0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		// Bottom face
+		0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
 	};
 
 	GLfloat color_buffer_data[72] = {
@@ -213,11 +251,14 @@ struct Building {
 	GLuint colorBufferID;
 	GLuint uvBufferID;
 	GLuint textureID;
+	GLuint normalBufferID;
+	GLuint exposureID; // Uniform location for exposure
 
 	// Shader variable IDs
 	GLuint mvpMatrixID;
 	GLuint textureSamplerID;
-	GLuint programID;
+	GLuint lightPositionID;
+	GLuint lightIntensityID;
 
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		this->position = position;
@@ -267,6 +308,9 @@ struct Building {
 		// Use the global shader program
 		mvpMatrixID = glGetUniformLocation(globalProgramID, "MVP");
 		textureSamplerID = glGetUniformLocation(globalProgramID, "textureSampler");
+		lightPositionID = glGetUniformLocation(globalProgramID, "lightPosition");
+		lightIntensityID = glGetUniformLocation(globalProgramID, "lightIntensity");
+		exposureID = glGetUniformLocation(globalProgramID, "exposure"); // Get the uniform location
 	}
 
 	void render(glm::mat4 cameraMatrix) {
@@ -293,15 +337,27 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
+		glEnableVertexAttribArray(3);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glUniform1i(textureSamplerID, 0);
+
+		// Set light data 
+		glUniform3fv(lightPositionID, 1, &lightPosition[0]);
+		glUniform3fv(lightIntensityID, 1, &lightIntensity[0]);
+
+		float exposure = 36.0f;
+		glUniform1f(exposureID, exposure); // Set the exposure uniform
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
 	}
 
 	void cleanup() {
@@ -310,6 +366,7 @@ struct Building {
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
+		glDeleteBuffers(1, &normalBufferID);
 	}
 };
 
@@ -469,7 +526,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		lookat = eye_center + glm::normalize(cameraDirection);
 	}
 
-	if (key == GLFW_KEY_RIGHT)
+	if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT))
 	{
 		// Rotate the view to the right
 		viewAzimuth += 0.05f;
