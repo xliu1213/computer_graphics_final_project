@@ -2,12 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <render/shader.h>
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-
 #include <vector>
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -426,65 +423,44 @@ int main(void)
 // Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	static glm::vec3 cameraDirection = glm::normalize(lookat - eye_center);
-	static glm::vec3 right = glm::normalize(glm::cross(cameraDirection, up));
-
 	if (key == GLFW_KEY_R && action == GLFW_PRESS)
 	{
-		// Reset the camera view
 		viewAzimuth = 0.f;
-		eye_center = glm::vec3(0, 100, viewDistance);
-		cameraDirection = glm::normalize(lookat - eye_center);
-		right = glm::normalize(glm::cross(cameraDirection, up));
-		lookat = eye_center + cameraDirection;
+		viewPolar = 0.f;
+		eye_center.y = viewDistance * cos(viewPolar);
+		eye_center.x = viewDistance * cos(viewAzimuth);
+		eye_center.z = viewDistance * sin(viewAzimuth);
+		std::cout << "Reset." << std::endl;
 	}
 
-	if ((key == GLFW_KEY_UP) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if (key == GLFW_KEY_UP && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		// Move forward along the current direction
-		glm::vec3 forward = glm::normalize(cameraDirection);
-		eye_center += forward * 10.0f;
-		lookat = eye_center + cameraDirection;
+		viewPolar -= 0.1f;
+		eye_center.y = viewDistance * cos(viewPolar);
 	}
 
-	if ((key == GLFW_KEY_DOWN) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if (key == GLFW_KEY_DOWN && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		// Move backward along the current direction
-		glm::vec3 backward = glm::normalize(cameraDirection);
-		eye_center -= backward * 10.0f;
-		lookat = eye_center + cameraDirection;
+		viewPolar += 0.1f;
+		eye_center.y = viewDistance * cos(viewPolar);
 	}
 
-	if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if (key == GLFW_KEY_LEFT && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		// Rotate the view to the left
-		viewAzimuth -= 0.05f;
-
-		// Update camera direction based on the new azimuth angle
-		cameraDirection.x = cos(viewAzimuth);
-		cameraDirection.z = sin(viewAzimuth);
-
-		// Keep the camera's position constant but update the lookat point
-		lookat = eye_center + glm::normalize(cameraDirection);
+		viewAzimuth -= 0.1f;
+		eye_center.x = viewDistance * cos(viewAzimuth);
+		eye_center.z = viewDistance * sin(viewAzimuth);
 	}
 
-	if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if (key == GLFW_KEY_RIGHT && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
-		// Rotate the view to the right
-		viewAzimuth += 0.05f;
-
-		// Update camera direction based on the new azimuth angle
-		cameraDirection.x = cos(viewAzimuth);
-		cameraDirection.z = sin(viewAzimuth);
-
-		// Keep the camera's position constant but update the lookat point
-		lookat = eye_center + glm::normalize(cameraDirection);
+		viewAzimuth += 0.1f;
+		eye_center.x = viewDistance * cos(viewAzimuth);
+		eye_center.z = viewDistance * sin(viewAzimuth);
 	}
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	}
 }
 
 
