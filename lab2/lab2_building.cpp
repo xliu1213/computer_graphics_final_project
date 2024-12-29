@@ -4,7 +4,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <render/shader.h>
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
 #include <vector>
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -14,12 +16,25 @@
 #include <string>
 
 static GLFWwindow *window;
+static int windowWidth = 1024;
+static int windowHeight = 768;
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
+static void cursor_callback(GLFWwindow* window, double xpos, double ypos);
 
 // OpenGL camera view parameters
 static glm::vec3 eye_center;
 static glm::vec3 lookat(0, 0, 0);
 static glm::vec3 up(0, 1, 0);
+static float FoV = 45;
+static float zNear = 0.1f;
+static float zFar = 1000.0f;
+
+// Lighting control
+const glm::vec3 wave500(0.0f, 255.0f, 146.0f);
+const glm::vec3 wave600(255.0f, 190.0f, 0.0f);
+const glm::vec3 wave700(205.0f, 0.0f, 0.0f);
+static glm::vec3 lightIntensity = 5.0f * (8.0f * wave500 + 15.6f * wave600 + 18.4f * wave700);
+static glm::vec3 lightPosition = glm::vec3(0.0f, 300.0f, 0.0f);
 
 // View control 
 static float viewAzimuth = 0.f;
@@ -329,7 +344,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1024, 768, "Lab 2", NULL, NULL);
+	window = glfwCreateWindow(windowWidth, windowHeight, "Lab 2", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cerr << "Failed to open a GLFW window." << std::endl;
@@ -461,6 +476,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+static void cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+	if (xpos < 0 || xpos >= windowWidth || ypos < 0 || ypos > windowHeight)
+		return;
+
+	// Normalize to [0, 1] 
+	float x = xpos / windowWidth;
+	float y = ypos / windowHeight;
+
+	// To [-1, 1] and flip y up 
+	x = x * 2.0f - 1.0f;
+	y = 1.0f - y * 2.0f;
+
+	const float scale = 250.0f;
+	lightPosition.x = x * scale - 278;
+	lightPosition.y = y * scale + 278;
+
+	//std::cout << lightPosition.x << " " << lightPosition.y << " " << lightPosition.z << std::endl;
 }
 
 
