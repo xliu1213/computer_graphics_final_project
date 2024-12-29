@@ -36,7 +36,7 @@ const glm::vec3 wave500(0.0f, 255.0f, 146.0f);
 const glm::vec3 wave600(255.0f, 190.0f, 0.0f);
 const glm::vec3 wave700(205.0f, 0.0f, 0.0f);
 static glm::vec3 lightIntensity = 5.0f * (8.0f * wave500 + 15.6f * wave600 + 18.4f * wave700);
-static glm::vec3 lightPosition = glm::vec3(1000.0f, 50.0f, 0.0f);
+static glm::vec3 lightPosition = glm::vec3(100.0f, 50.0f, 1000.0f);
 
 static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	int w, h, channels;
@@ -397,7 +397,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1024, 768, "Lab 2", NULL, NULL);
+	window = glfwCreateWindow(1024, 768, "Final Project", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cerr << "Failed to open a GLFW window." << std::endl;
