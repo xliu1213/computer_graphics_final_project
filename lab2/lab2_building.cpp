@@ -2,11 +2,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 #include <render/shader.h>
+
 #define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
+
 #include <vector>
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -16,8 +17,6 @@
 #include <string>
 
 static GLFWwindow* window;
-static int windowWidth = 1024;
-static int windowHeight = 768;
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // OpenGL camera view parameters
@@ -29,14 +28,6 @@ static glm::vec3 up(0, 1, 0);
 static float viewAzimuth = 0.f;
 static float viewPolar = 0.f;
 static float viewDistance = 600.0f;
-static float viewDistanceSkybox = 1.0f;
-
-// Lighting control 
-const glm::vec3 wave500(0.0f, 255.0f, 146.0f);
-const glm::vec3 wave600(255.0f, 190.0f, 0.0f);
-const glm::vec3 wave700(205.0f, 0.0f, 0.0f);
-static glm::vec3 lightIntensity = 5.0f * (8.0f * wave500 + 15.6f * wave600 + 18.4f * wave700);
-static glm::vec3 lightPosition = glm::vec3(100.0f, 50.0f, 1000.0f);
 
 static GLuint LoadTextureTileBox(const char* texture_file_path) {
 	int w, h, channels;
@@ -118,37 +109,6 @@ struct Building {
 		1.0f, -1.0f, -1.0f,
 		1.0f, -1.0f, 1.0f,
 		-1.0f, -1.0f, 1.0f,
-	};
-
-	GLfloat normal_buffer_data[72] = {
-		// Front face (verified)
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-
-		// Back face (verified)
-		0.0f, 0.0f, -1.0f,
-		0.0f, 0.0f, -1.0f,
-		0.0f, 0.0f, -1.0f,
-		0.0f, 0.0f, -1.0f,
-
-		// Left face (verified)
-		-1.0f, 0.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-
-		// Right face (verified)
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-
-		// Top face
-		0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-		// Bottom face
-		0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
 	};
 
 	GLfloat color_buffer_data[72] = {
@@ -253,14 +213,11 @@ struct Building {
 	GLuint colorBufferID;
 	GLuint uvBufferID;
 	GLuint textureID;
-	GLuint normalBufferID;
-	GLuint exposureID; // Uniform location for exposure
 
 	// Shader variable IDs
 	GLuint mvpMatrixID;
 	GLuint textureSamplerID;
-	GLuint lightPositionID;
-	GLuint lightIntensityID;
+	GLuint programID;
 
 	void initialize(glm::vec3 position, glm::vec3 scale) {
 		this->position = position;
@@ -297,11 +254,6 @@ struct Building {
 
 		for (int i = 0; i < 24; ++i) uv_buffer_data[2 * i + 1] *= 5;
 
-		// Create a vertex buffer object to store the vertex normals		
-		glGenBuffers(1, &normalBufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(normal_buffer_data), normal_buffer_data, GL_STATIC_DRAW);
-
 		// Create a vertex buffer object to store the UV data 
 		glGenBuffers(1, &uvBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
@@ -315,9 +267,6 @@ struct Building {
 		// Use the global shader program
 		mvpMatrixID = glGetUniformLocation(globalProgramID, "MVP");
 		textureSamplerID = glGetUniformLocation(globalProgramID, "textureSampler");
-		lightPositionID = glGetUniformLocation(globalProgramID, "lightPosition");
-		lightIntensityID = glGetUniformLocation(globalProgramID, "lightIntensity");
-		exposureID = glGetUniformLocation(globalProgramID, "exposure"); // Get the uniform location
 	}
 
 	void render(glm::mat4 cameraMatrix) {
@@ -344,27 +293,15 @@ struct Building {
 		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glEnableVertexAttribArray(3);
-		glBindBuffer(GL_ARRAY_BUFFER, normalBufferID);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glUniform1i(textureSamplerID, 0);
-
-		// Set light data 
-		glUniform3fv(lightPositionID, 1, &lightPosition[0]);
-		glUniform3fv(lightIntensityID, 1, &lightIntensity[0]);
-
-		float exposure = 36.0f;
-		glUniform1f(exposureID, exposure); // Set the exposure uniform
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(3);
 	}
 
 	void cleanup() {
@@ -373,7 +310,6 @@ struct Building {
 		glDeleteBuffers(1, &indexBufferID);
 		glDeleteVertexArrays(1, &vertexArrayID);
 		glDeleteTextures(1, &textureID);
-		glDeleteBuffers(1, &normalBufferID);
 	}
 };
 
@@ -397,7 +333,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1024, 768, "Final Project", NULL, NULL);
+	window = glfwCreateWindow(1024, 768, "Lab 2", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cerr << "Failed to open a GLFW window." << std::endl;
@@ -466,12 +402,11 @@ int main(void)
 
 		// Recalculate the camera view matrix
 		viewMatrix = glm::lookAt(eye_center, lookat, up);
+		glm::mat4 vp = projectionMatrix * viewMatrix;
 
-		glm::mat4 buildingsVP = projectionMatrix * viewMatrix;
-
-		// Render the buildings next
+		// Render each building in the vector
 		for (auto& building : buildings) {
-			building.render(buildingsVP);
+			building.render(vp); // Pass the updated VP matrix
 		}
 
 		// Swap buffers
@@ -479,6 +414,7 @@ int main(void)
 		glfwPollEvents();
 
 	} while (!glfwWindowShouldClose(window));
+
 	for (auto& building : buildings) {
 		building.cleanup();
 	}
@@ -491,42 +427,89 @@ int main(void)
 // Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
+	static glm::vec3 cameraDirection = glm::normalize(lookat - eye_center);
+	static glm::vec3 right = glm::normalize(glm::cross(cameraDirection, up));
+
 	if (key == GLFW_KEY_R && action == GLFW_PRESS)
 	{
+		// Reset the camera view
 		viewAzimuth = 0.f;
-		viewPolar = 0.f;
-		eye_center.y = viewDistance * cos(viewPolar);
-		eye_center.x = viewDistance * cos(viewAzimuth);
-		eye_center.z = viewDistance * sin(viewAzimuth);
-		std::cout << "Reset." << std::endl;
+		eye_center = glm::vec3(0, 100, viewDistance);
+		cameraDirection = glm::normalize(lookat - eye_center);
+		right = glm::normalize(glm::cross(cameraDirection, up));
+		lookat = eye_center + cameraDirection;
 	}
 
-	if (key == GLFW_KEY_UP && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	if ((key == GLFW_KEY_UP))
+	{
+		// Move forward along the current direction
+		glm::vec3 forward = glm::normalize(cameraDirection);
+		eye_center += forward * 10.0f;
+		lookat = eye_center + cameraDirection;
+	}
+
+	if ((key == GLFW_KEY_DOWN) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	{
+		// Move backward along the current direction
+		glm::vec3 backward = glm::normalize(cameraDirection);
+		eye_center -= backward * 10.0f;
+		lookat = eye_center + cameraDirection;
+	}
+
+	if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	{
+		// Rotate the view to the left
+		viewAzimuth -= 0.05f;
+
+		// Update camera direction based on the new azimuth angle
+		cameraDirection.x = cos(viewAzimuth);
+		cameraDirection.z = sin(viewAzimuth);
+
+		// Keep the camera's position constant but update the lookat point
+		lookat = eye_center + glm::normalize(cameraDirection);
+	}
+
+	if (key == GLFW_KEY_RIGHT)
+	{
+		// Rotate the view to the right
+		viewAzimuth += 0.05f;
+
+		// Update camera direction based on the new azimuth angle
+		cameraDirection.x = cos(viewAzimuth);
+		cameraDirection.z = sin(viewAzimuth);
+
+		// Keep the camera's position constant but update the lookat point
+		lookat = eye_center + glm::normalize(cameraDirection);
+	}
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+
+	if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		viewPolar -= 0.1f;
 		eye_center.y = viewDistance * cos(viewPolar);
 	}
 
-	if (key == GLFW_KEY_DOWN && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		viewPolar += 0.1f;
 		eye_center.y = viewDistance * cos(viewPolar);
 	}
 
-	if (key == GLFW_KEY_LEFT && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		viewAzimuth -= 0.1f;
 		eye_center.x = viewDistance * cos(viewAzimuth);
 		eye_center.z = viewDistance * sin(viewAzimuth);
 	}
 
-	if (key == GLFW_KEY_RIGHT && (action == GLFW_REPEAT || action == GLFW_PRESS))
+	if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
 	{
 		viewAzimuth += 0.1f;
 		eye_center.x = viewDistance * cos(viewAzimuth);
 		eye_center.z = viewDistance * sin(viewAzimuth);
 	}
-
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
 }

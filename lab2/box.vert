@@ -15,6 +15,9 @@ out vec3 worldNormal;
 // Matrix for vertex transformation
 uniform mat4 MVP;
 
+uniform mat4 lightSpaceTransformMatrix; // for shadow mapping
+out vec4 lightSpacePosition; // for shadow mapping
+
 void main() {
     // Transform vertex
     gl_Position =  MVP * vec4(vertexPosition, 1);
@@ -27,4 +30,6 @@ void main() {
 
     worldPosition = vertexPosition;
     worldNormal = vertexNormal;
+
+    lightSpacePosition = lightSpaceTransformMatrix * vec4(worldPosition, 1.0); // for shadow mapping
 }
