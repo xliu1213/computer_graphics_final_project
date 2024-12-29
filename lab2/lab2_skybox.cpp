@@ -32,12 +32,10 @@ static GLuint LoadTextureTileBoxSkybox(const char* texture_file_path) {
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	// Load the texture image data
 	if (img) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
@@ -47,15 +45,14 @@ static GLuint LoadTextureTileBoxSkybox(const char* texture_file_path) {
 		std::cerr << "Failed to load texture " << texture_file_path << std::endl;
 	}
 	stbi_image_free(img);
-
 	return texture;
 }
 
-struct Building {
-	glm::vec3 position;		// Position of the box 
-	glm::vec3 scale;		// Size of the box in each axis
+struct Skybox {
+	glm::vec3 positionSkybox;		// positionSkybox of the box 
+	glm::vec3 scaleSkybox;		// Size of the box in each axis
 
-	GLfloat vertex_buffer_data[72] = {
+	GLfloat vertex_buffer_data_skybox[72] = {
 		// Front face
 		-1.0f, -1.0f, 1.0f,
 		 1.0f, -1.0f, 1.0f,
@@ -93,7 +90,7 @@ struct Building {
 		  -1.0f, -1.0f,  1.0f,
 	};
 
-	GLfloat color_buffer_data[72] = {
+	GLfloat color_buffer_data_skybox[72] = {
 		// Front, red
 		1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
@@ -131,7 +128,7 @@ struct Building {
 		1.0f, 0.0f, 1.0f,
 	};
 
-	GLuint index_buffer_data[36] = {		// 12 triangle faces of a box
+	GLuint index_buffer_data_skybox[36] = {		// 12 triangle faces of a box
 		0, 1, 2,
 		0, 2, 3,
 
@@ -151,7 +148,7 @@ struct Building {
 		20, 22, 23,
 	};
 
-	GLfloat uv_buffer_data[48] = {
+	GLfloat uv_buffer_data_skybox[48] = {
 		// +X Face (pos X)
 		0.25f, 0.666f,  // Top-right
 		0.0f,  0.666f,  // Top-left
@@ -190,89 +187,89 @@ struct Building {
 	};
 
 	// OpenGL buffers
-	GLuint vertexArrayID;
-	GLuint vertexBufferID;
-	GLuint indexBufferID;
-	GLuint colorBufferID;
-	GLuint uvBufferID;
-	GLuint textureID;
+	GLuint vertexArrayIDskybox;
+	GLuint vertexBufferIDskybox;
+	GLuint indexBufferIDskybox;
+	GLuint colorBufferIDskybox;
+	GLuint uvBufferIDskybox;
+	GLuint textureIDskybox;
 
 	// Shader variable IDs
-	GLuint mvpMatrixID;
-	GLuint textureSamplerID;
-	GLuint programID;
+	GLuint mvpMatrixIDskybox;
+	GLuint textureSamplerIDskybox;
+	GLuint programIDskybox;
 
-	void initialize(glm::vec3 position, glm::vec3 scale) {
-		this->position = position;
-		this->scale = scale;
+	void initialize(glm::vec3 positionSkybox, glm::vec3 scaleSkybox) {
+		this->positionSkybox = positionSkybox;
+		this->scaleSkybox = scaleSkybox;
 
 		// Create a vertex array object
-		glGenVertexArrays(1, &vertexArrayID);
-		glBindVertexArray(vertexArrayID);
+		glGenVertexArrays(1, &vertexArrayIDskybox);
+		glBindVertexArray(vertexArrayIDskybox);
 
 		// Create a vertex buffer object to store the vertex data		
-		glGenBuffers(1, &vertexBufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_STATIC_DRAW);
+		glGenBuffers(1, &vertexBufferIDskybox);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIDskybox);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data_skybox), vertex_buffer_data_skybox, GL_STATIC_DRAW);
 
 		// Create a vertex buffer object to store the color data
-		glGenBuffers(1, &colorBufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
-		for (int i = 0; i < 72; ++i) color_buffer_data[i] = 1.0f;
-		glBufferData(GL_ARRAY_BUFFER, sizeof(color_buffer_data), color_buffer_data, GL_STATIC_DRAW);
+		glGenBuffers(1, &colorBufferIDskybox);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBufferIDskybox);
+		for (int i = 0; i < 72; ++i) color_buffer_data_skybox[i] = 1.0f;
+		glBufferData(GL_ARRAY_BUFFER, sizeof(color_buffer_data_skybox), color_buffer_data_skybox, GL_STATIC_DRAW);
 
 		// Create a vertex buffer object to store the UV data 
-		glGenBuffers(1, &uvBufferID);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
-		textureID = LoadTextureTileBoxSkybox("../../../lab2/sky.png");
+		glGenBuffers(1, &uvBufferIDskybox);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBufferIDskybox);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data_skybox), uv_buffer_data_skybox, GL_STATIC_DRAW);
+		textureIDskybox = LoadTextureTileBoxSkybox("../../../lab2/sky.png");
 
 		// Create an index buffer object to store the index data that defines triangle faces
-		glGenBuffers(1, &indexBufferID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_STATIC_DRAW);
+		glGenBuffers(1, &indexBufferIDskybox);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferIDskybox);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data_skybox), index_buffer_data_skybox, GL_STATIC_DRAW);
 
 		// Create and compile our GLSL program from the shaders
-		programID = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
-		if (programID == 0)
+		programIDskybox = LoadShadersFromFile("../../../lab2/box.vert", "../../../lab2/box.frag");
+		if (programIDskybox == 0)
 		{
 			std::cerr << "Failed to load shaders." << std::endl;
 		}
 
 		// Get a handle for our "MVP" uniform
-		mvpMatrixID = glGetUniformLocation(programID, "MVP");
-		textureSamplerID = glGetUniformLocation(programID, "textureSampler");
+		mvpMatrixIDskybox = glGetUniformLocation(programIDskybox, "MVP");
+		textureSamplerIDskybox = glGetUniformLocation(programIDskybox, "textureSampler");
 	}
 
 	void render(glm::mat4 cameraMatrix) {
-		glUseProgram(programID);
+		glUseProgram(programIDskybox);
 
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIDskybox);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBufferIDskybox);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferIDskybox);
 
 		// Model transform
 		glm::mat4 modelMatrix = glm::mat4();
-		modelMatrix = glm::scale(modelMatrix, scale);
+		modelMatrix = glm::scale(modelMatrix, scaleSkybox);
 
 		// Set model-view-projection matrix
 		glm::mat4 mvp = cameraMatrix * modelMatrix;
-		glUniformMatrix4fv(mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(mvpMatrixIDskybox, 1, GL_FALSE, &mvp[0][0]);
 
 		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBufferIDskybox);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 		// Set textureSampler to use texture unit 0 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glUniform1i(textureSamplerID, 0);
+		glBindTexture(GL_TEXTURE_2D, textureIDskybox);
+		glUniform1i(textureSamplerIDskybox, 0);
 
 		// Draw the box
 		glDrawElements(
@@ -288,13 +285,13 @@ struct Building {
 	}
 
 	void cleanup() {
-		glDeleteBuffers(1, &vertexBufferID);
-		glDeleteBuffers(1, &colorBufferID);
-		glDeleteBuffers(1, &indexBufferID);
-		glDeleteVertexArrays(1, &vertexArrayID);
-		//glDeleteBuffers(1, &uvBufferID);
-		//glDeleteTextures(1, &textureID);
-		glDeleteProgram(programID);
+		glDeleteBuffers(1, &vertexBufferIDskybox);
+		glDeleteBuffers(1, &colorBufferIDskybox);
+		glDeleteBuffers(1, &indexBufferIDskybox);
+		glDeleteVertexArrays(1, &vertexArrayIDskybox);
+		//glDeleteBuffers(1, &uvBufferIDskybox);
+		//glDeleteTextures(1, &textureIDskybox);
+		glDeleteProgram(programIDskybox);
 	}
 };
 
@@ -340,8 +337,8 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	Building b;
-	b.initialize(glm::vec3(0, 0, 0), glm::vec3(30, 30, 30));
+	Skybox skybox;
+	skybox.initialize(glm::vec3(0, 0, 0), glm::vec3(30, 30, 30));
 
 	// Camera setup
 	eye_center.y = viewDistanceSkybox * cos(viewPolar);
@@ -361,7 +358,7 @@ int main(void)
 		viewMatrix = glm::lookAt(eye_center, lookat, up);
 		glm::mat4 vp = projectionMatrix * viewMatrix;
 
-		b.render(vp);
+		skybox.render(vp);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
@@ -370,7 +367,7 @@ int main(void)
 	} // Check if the ESC key was pressed or the window was closed
 	while (!glfwWindowShouldClose(window));
 
-	b.cleanup();
+	skybox.cleanup();
 
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
