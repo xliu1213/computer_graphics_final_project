@@ -390,7 +390,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1024, 768, "Lab 2", NULL, NULL);
+	window = glfwCreateWindow(1024, 768, "Final Project", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cerr << "Failed to open a GLFW window." << std::endl;
